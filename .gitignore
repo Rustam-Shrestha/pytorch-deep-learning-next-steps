@@ -1,0 +1,84 @@
+# ==============================
+# IGNORE ALL DATASET & BINARY FILES
+# ==============================
+
+# General data formats
+*.csv
+*.tsv
+*.json
+*.xml
+*.yaml
+*.yml
+
+# Spreadsheet & tabular data
+*.xlsx
+*.xls
+*.ods
+*.xlsm
+
+# Database & binary data
+*.db
+*.sqlite
+*.sqlite3
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.hdf
+*.mat
+
+# Pickle & serialized Python objects
+*.pkl
+*.pickle
+
+# Machine Learning / AI model & data files
+*.joblib
+*.onnx
+*.pb
+*.pth
+*.pt
+*.bin
+*.safetensors
+
+# Large text/data dumps
+*.txt
+*.log  # unless you specifically need logs
+
+# Compressed archives (often used for datasets)
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Image & media files (sometimes used as data)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.webp
+*.mp4
+*.avi
+*.mov
+
+# Avoid tracking ANY large file (optional but safe)
+# This catches unknown extensions
+# NOTE: Use cautiously — may hide config files if misused
+# But generally safe for data science projects
+data/
+datasets/
+dataset/
+raw/
+processed/
+external/
+interim/
+*.data
+
+/jupyterenv
+
+omniglot_test/
+omniglot_train/
+clouds/
