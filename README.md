@@ -176,4 +176,246 @@ Deep networks often suffer from **vanishing** or **exploding gradients**, which 
 
 Today's implementation reflects a robust and scalable deep learning pipeline. By combining proper initialization, activation strategies, and normalization techniques, the model is well-equipped to learn effectively and generalize reliably. The training and evaluation loops are modular and reusable, forming a strong foundation for future experimentation and deployment.
 
+# Day 13: Image Classification with PyTorch – Dataset, Display, and Augmentation
+
+This document summarizes the foundational concepts and implementation steps for building an image classification pipeline using PyTorch. The focus is on handling image data, loading structured datasets, visualizing samples, and applying data augmentation to improve model robustness.
+
+---
+
+## 1. Introduction to Image Data
+
+Digital images are composed of **pixels** (picture elements), which are the smallest units of visual information.
+
+- **Grayscale images**: Each pixel is a single integer between 0 (black) and 255 (white).
+- **Color images**: Each pixel is represented by three integers for **Red**, **Green**, and **Blue** channels (RGB). For example:
+  - Pixel `[52, 171, 235]` represents a specific shade of blue.
+
+Understanding pixel structure is essential for preprocessing and model input formatting.
+
+---
+
+## 2. Cloud Type Classification Dataset
+
+The project uses the **Cloud Type Classification** dataset from Kaggle:
+[Cloud Type Classification Dataset](https://www.kaggle.com/competitions/cloud-type-classification2/data)
+
+![image.png](attachment:b19efbfe-64f8-42ea-890a-ab4b06a1a350.png)
+
+- **Directory structure**:
+  - `cloud_train/` and `cloud_test/` folders
+  - Each contains **seven subfolders**, one for each cloud type
+  - Each subfolder contains `.jpg` images representing that class
+
+This structure is compatible with PyTorch’s `ImageFolder` utility.
+
+---
+
+## 3. Loading Images with PyTorch
+
+To load and preprocess images:
+
+- Use `ImageFolder` from `torchvision.datasets` to create a labeled dataset.
+- Apply transformations using `transforms.Compose`:
+  - `ToTensor()`: Converts image to a PyTorch tensor
+  - `Resize((128, 128))`: Standardizes image dimensions
+
+This ensures consistent input size and format for the model.
+
+---
+
+## 4. Displaying Image Samples
+
+Once loaded, images have the shape:  
+`[batch_size, channels, height, width]` → `[1, 3, 128, 128]`
+
+To visualize an image using `matplotlib`:
+
+- Use `squeeze()` to remove the batch dimension
+- Use `permute(1, 2, 0)` to rearrange dimensions to `[height, width, channels]`
+- Call `plt.imshow()` followed by `plt.show()`
+
+This step is crucial for verifying data integrity and understanding input structure.
+
+---
+
+## 5. Data Augmentation Techniques
+
+Data augmentation increases dataset diversity and helps prevent overfitting.
+
+Common transformations include:
+
+- `RandomHorizontalFlip()`: Flips images horizontally
+- `RandomRotation(degrees=(0, 45))`: Rotates images randomly within a specified range
+
+Benefits of augmentation:
+
+- Simulates real-world distortions
+- Improves model generalization
+- Reduces reliance on specific pixel patterns
+
+Augmentation is applied during dataset loading and is only used for training data.
+
+---
+
+## 6. Summary of Key Concepts
+
+| Concept               | Description                                           |
+|-----------------------|-------------------------------------------------------|
+| Pixels                | Fundamental units of image data                      |
+| RGB Channels          | Represent color intensity per pixel                  |
+| ImageFolder           | Loads structured image datasets with labels          |
+| ToTensor + Resize     | Converts and standardizes image input                |
+| Squeeze + Permute     | Prepares image for visualization                     |
+| Data Augmentation     | Adds variability to training data                    |
+
+---
+
+## 7. Final Notes
+
+Today’s session laid the groundwork for building image classifiers in PyTorch. By mastering image loading, preprocessing, and augmentation, you’re now equipped to train models that handle real-world visual data with robustness and precision.
+
+
+
+# Day 14: End-to-End Image Classification with CNNs in PyTorch
+
+This document summarizes the complete workflow for building, training, and evaluating a multi-class image classifier using Convolutional Neural Networks (CNNs) in PyTorch. The task involves classifying cloud types from image data, with seven distinct classes.
+
+---
+
+## 1. Motivation for Convolutional Layers
+
+Linear layers are inefficient for image data due to:
+
+- Extremely high parameter count (e.g., 256×256 grayscale image → 65,536 inputs)
+- Lack of spatial awareness — unable to detect patterns that shift position
+- Risk of overfitting and slow training
+
+Convolutional layers solve these issues by:
+
+- Using small filters that slide across the image
+- Preserving spatial hierarchies
+- Reducing parameter count and improving generalization
+
+---
+
+## 2. CNN Architecture Design
+
+The model consists of two main components:
+
+### Feature Extractor
+- Two convolutional blocks:
+  - Each block includes `Conv2d`, activation, and `MaxPool2d`
+  - First block: 3 input channels → 32 feature maps
+  - Second block: 32 → 64 feature maps
+- Padding used to preserve spatial dimensions
+- Max pooling halves height and width after each block
+
+### Classifier
+- Flattens the output of the feature extractor
+- Single linear layer maps to 7 output classes
+
+### Forward Propagation
+- Input image passes through feature extractor
+- Output is flattened and passed to classifier
+- Final output is a vector of class scores
+
+---
+
+## 3. Image Preprocessing and Augmentation
+
+### Training-Time Transforms
+- Convert image to tensor
+- Resize to 128×128
+- Apply random rotation, horizontal flip, and autocontrast
+
+These augmentations improve robustness and reduce overfitting.
+
+### Test-Time Transforms
+- Only tensor conversion and resizing
+- No augmentation — ensures evaluation on original image
+
+Augmentations must be task-aware. For example:
+
+- Rotating a cat image is valid
+- Color-shifting a lemon may resemble a lime — invalid
+- Flipping a "W" may resemble an "M" — invalid
+
+Always choose augmentations based on domain semantics.
+
+---
+
+## 4. Data Handling and Visualization
+
+- Images loaded using `ImageFolder` with structured directories
+- Labels are inferred from folder names
+- DataLoader batches the data for training and evaluation
+- To visualize images:
+  - Use `squeeze` to remove batch dimension
+  - Use `permute` to rearrange dimensions for `matplotlib`
+
+---
+
+## 5. Training Loop Overview
+
+- Model initialized with 7 output classes
+- Loss function: CrossEntropyLoss (for multi-class classification)
+- Optimizer: Adam with learning rate 0.001
+- Training runs for 37 epochs
+- For each batch:
+  - Forward pass
+  - Loss computation
+  - Backward pass
+  - Parameter update
+- Epoch loss printed for monitoring convergence
+
+---
+
+## 6. Evaluation Metrics
+
+### Accuracy
+- Measures overall proportion of correct predictions
+
+### Precision and Recall
+- Computed per class in multi-class classification
+- Precision: Correct predictions of class / All predictions of class
+- Recall: Correct predictions of class / All true instances of class
+
+### Averaging Strategies
+- **Micro**: Global average across all classes
+- **Macro**: Unweighted mean of per-class scores
+- **Weighted**: Mean weighted by class size
+
+Choice depends on dataset balance and evaluation goals.
+
+---
+
+## 7. Per-Class Performance Analysis
+
+- Metrics computed with `average='none'` to get scores per class
+- `class_to_idx` maps class names to indices
+- Dictionary comprehension used to pair class names with recall scores
+
+### Example Insight
+- Recall of 1.0 for "clear sky" → perfect classification
+- Lowest recall for "high cumuliform clouds" → model struggles with this class
+
+---
+
+## 8. Summary of Key Concepts
+
+| Component              | Description                                             |
+|------------------------|---------------------------------------------------------|
+| CNN Architecture       | Efficient spatial feature extraction and classification |
+| Data Augmentation      | Task-aware transformations for training robustness      |
+| Preprocessing          | Tensor conversion, resizing, and visualization steps    |
+| Training Loop          | Standard PyTorch loop with optimizer and loss updates   |
+| Evaluation Metrics     | Accuracy, precision, recall with micro/macro/weighted   |
+| Per-Class Analysis     | Reveals strengths and weaknesses across categories      |
+
+---
+
+## 9. Final Notes
+
+This session covered the full pipeline for image classification using CNNs in PyTorch — from architecture design and data augmentation to training and evaluation. The model is now capable of learning spatial features, handling real-world image variability, and reporting class-specific performance metrics for deeper diagnostic insight.
+
 
