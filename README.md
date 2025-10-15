@@ -418,4 +418,126 @@ Choice depends on dataset balance and evaluation goals.
 
 This session covered the full pipeline for image classification using CNNs in PyTorch — from architecture design and data augmentation to training and evaluation. The model is now capable of learning spatial features, handling real-world image variability, and reporting class-specific performance metrics for deeper diagnostic insight.
 
+# Day 18: RNN, LSTM, and GRU — Memory Cells in PyTorch
+
+This document summarizes the theoretical foundations and practical implementation of recurrent memory cells in PyTorch. The focus was on understanding the limitations of plain RNNs and exploring advanced architectures like LSTM and GRU. All concepts were reinforced through hands-on coding in class, making the session highly productive and implementation-driven.
+
+---
+
+## 1. The Short-Term Memory Problem in RNNs
+
+- **RNNs** pass a hidden state across time steps, enabling them to model sequences.
+- However, they suffer from **short-term memory**: earlier inputs are forgotten as the sequence grows.
+- This makes them unsuitable for tasks requiring long-range dependencies (e.g., translation, summarization).
+
+### Solution
+Two enhanced architectures were introduced to address this:
+
+- **LSTM (Long Short-Term Memory)**
+- **GRU (Gated Recurrent Unit)**
+
+---
+
+## 2. Plain RNN Cell
+
+At each time step \( t \), the RNN cell:
+
+- Takes input \( x_t \) and previous hidden state \( h_{t-1} \)
+- Applies a linear transformation and activation
+- Outputs:
+  - Current output \( y_t \)
+  - Updated hidden state \( h_t \)
+
+This structure is simple but limited in memory retention.
+
+---
+
+## 3. LSTM Cell: Dual Memory Mechanism
+
+LSTM introduces two hidden states:
+
+- **Short-term memory**: \( h \)
+- **Long-term memory**: \( c \)
+
+### Gate Controllers
+- **Forget Gate**: Erases irrelevant parts of \( c \)
+- **Input Gate**: Adds new information to \( c \)
+- **Output Gate**: Determines the current output \( y \)
+
+### Outputs
+- Updated long-term memory \( c \)
+- Short-term memory \( h \), which also serves as output \( y \)
+
+This architecture enables retention of long-range dependencies.
+
+---
+
+## 4. GRU Cell: Simplified Memory Control
+
+GRU simplifies LSTM by:
+
+- Merging short-term and long-term memory into a **single hidden state**
+- Removing the **output gate**
+
+At each time step, the entire hidden state is returned. This reduces computational complexity while retaining performance.
+
+---
+
+## 5. PyTorch Implementation Summary
+
+### RNN
+- Defined using `nn.RNN`
+- Single hidden state \( h \)
+- Forward pass returns all outputs and final hidden state
+
+### LSTM
+- Defined using `nn.LSTM`
+- Two hidden states: \( h \) and \( c \)
+- Passed as a tuple to the LSTM layer
+- Final output passed through a linear layer
+
+### GRU
+- Defined using `nn.GRU`
+- Single hidden state \( h \)
+- Forward logic mirrors RNN with simplified state handling
+
+---
+
+## 6. Architecture Comparison
+
+| Architecture | Memory Type       | Gates Used             | Complexity | Use Case Suitability                  |
+|--------------|-------------------|-------------------------|------------|----------------------------------------|
+| RNN          | Short-term only   | None                    | Low        | Rarely used due to memory limitations  |
+| LSTM         | Short + Long-term | Forget, Input, Output   | High       | Effective for long sequences           |
+| GRU          | Unified memory    | Update, Reset (merged)  | Medium     | Efficient, often comparable to LSTM    |
+
+---
+
+## 7. Hands-On Coding Highlights
+
+- Implemented all three architectures (RNN, LSTM, GRU) in PyTorch.
+- Defined model classes with `__init__` and `forward` methods.
+- Initialized hidden states using `torch.zeros`.
+- Used `batch_first=True` for batch-major input formatting.
+- Passed final outputs through linear layers for prediction.
+- Compared outputs and training behavior across architectures.
+
+This hands-on coding session reinforced architectural understanding and improved implementation fluency.
+
+---
+
+## 8. Model Selection Guidance
+
+- **RNN**: Useful for learning purposes, but rarely used in production.
+- **LSTM**: Preferred for tasks requiring long-term memory (e.g., translation, speech recognition).
+- **GRU**: Faster and simpler; often performs comparably to LSTM.
+
+### Recommendation
+Try both LSTM and GRU on your dataset and compare performance empirically.
+
+---
+
+## 9. Final Notes
+
+Today’s session bridged theory and practice in sequence modeling. By understanding the memory limitations of RNNs and implementing LSTM and GRU cells in PyTorch, we now have a robust foundation for building models that learn from temporal patterns. The hands-on coding in class made the learning process more productive and implementation-ready.
 
