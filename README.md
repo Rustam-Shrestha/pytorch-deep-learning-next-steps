@@ -541,3 +541,125 @@ Try both LSTM and GRU on your dataset and compare performance empirically.
 
 Today’s session bridged theory and practice in sequence modeling. By understanding the memory limitations of RNNs and implementing LSTM and GRU cells in PyTorch, we now have a robust foundation for building models that learn from temporal patterns. The hands-on coding in class made the learning process more productive and implementation-ready.
 
+
+
+
+# Day 21: Training and Evaluating RNN-Based Time Series Models in PyTorch
+
+This document summarizes the complete workflow for training and evaluating recurrent neural networks (RNNs) for electricity consumption forecasting. The session focused on regression-specific loss functions, tensor reshaping techniques, and comparative performance analysis between LSTM and GRU architectures. All concepts were reinforced through hands-on coding in class, making the learning process highly productive.
+
+---
+
+## 1. Regression Objective and Loss Function
+
+Electricity consumption forecasting is a **regression task**, not classification. Therefore, we use:
+
+### Mean Squared Error (MSE) Loss
+- Measures the average squared difference between predicted and actual values.
+- Benefits:
+  - Prevents cancellation of positive and negative errors.
+  - Penalizes large errors more heavily.
+- PyTorch implementation: `nn.MSELoss`
+
+---
+
+## 2. Tensor Reshaping: Expand and Squeeze
+
+### Expanding Tensors
+- Recurrent layers expect input shape:  
+  
+
+\[
+  (\text{batch size}, \text{sequence length}, \text{number of features})
+  \]
+
+
+- Our input shape: `(32, 96)` → missing feature dimension
+- Solution: Use `.view()` to reshape to `(32, 96, 1)`
+
+### Squeezing Tensors
+- Model outputs: `(batch size, 1)`
+- Labels: `(batch size,)`
+- To match shapes for loss computation, apply `.squeeze()` to outputs
+
+These operations ensure compatibility with PyTorch’s loss functions and model layers.
+
+---
+
+## 3. Training Loop Structure
+
+- Instantiate model (RNN, LSTM, or GRU)
+- Define loss function: `nn.MSELoss`
+- Define optimizer (e.g., Adam)
+- For each epoch:
+  - Loop over training batches
+  - Expand input tensors
+  - Forward pass
+  - Compute loss
+  - Backward pass
+  - Optimizer step
+
+This loop trains the model to minimize prediction error over time.
+
+---
+
+## 4. Evaluation Loop Structure
+
+- Use `torchmetrics.MeanSquaredError` for evaluation
+- Disable gradient computation (`torch.no_grad()`)
+- For each test batch:
+  - Expand input tensors
+  - Forward pass
+  - Squeeze outputs
+  - Update metric
+- After loop, call `.compute()` to get final MSE
+
+This process quantifies model performance on unseen data.
+
+---
+
+## 5. LSTM vs GRU Performance
+
+| Model | Test MSE | Notes |
+|-------|----------|-------|
+| LSTM  | Higher   | Effective but more computationally intensive |
+| GRU   | Lower    | Comparable or better performance with fewer parameters |
+
+### Insight
+For this dataset and task (predicting next value from previous 24 hours), **GRU is preferred** due to:
+- Lower error
+- Reduced computational cost
+
+---
+
+## 6. Hands-On Coding Achievements
+
+- Implemented RNN, LSTM, and GRU architectures in PyTorch
+- Applied tensor reshaping techniques (`view`, `squeeze`)
+- Built training and evaluation loops from scratch
+- Compared model performance using MSE metric
+- Validated GRU’s efficiency and accuracy in real-world forecasting
+
+These coding exercises reinforced architectural understanding and improved implementation fluency.
+
+---
+
+## 7. Summary of Key Concepts
+
+| Component           | Description                                             |
+|---------------------|---------------------------------------------------------|
+| MSE Loss            | Regression-specific loss function                       |
+| Tensor Expansion    | Adds missing feature dimension for RNN input            |
+| Tensor Squeeze      | Aligns output shape with target for loss computation    |
+| Training Loop       | Standard PyTorch loop with reshaping and optimization   |
+| Evaluation Loop     | Metric tracking using torchmetrics                      |
+| Model Comparison    | GRU outperforms LSTM in this use case                   |
+
+---
+
+## 8. Final Notes
+
+Today’s session completed the full training and evaluation cycle for RNN-based time series forecasting. By mastering tensor reshaping and regression metrics, and comparing LSTM vs GRU performance, we now have a robust framework for modeling sequential data. The hands-on coding in class made the learning process deeply practical and implementation-ready.
+
+
+
