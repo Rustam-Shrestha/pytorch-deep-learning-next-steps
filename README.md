@@ -896,3 +896,74 @@ CNNs use spatial awareness and shared filters → robust and efficient.
 Multi-input/output architectures make deep learning flexible for real-world tasks (vision, text, and structured data together).
 
 
+
+# 🧠 Deep Learning Milestone: Dual-Output Classification with Omniglot Dataset
+
+## 📦 Dataset: Omniglot
+
+- The **Omniglot dataset** contains handwritten characters from 50 different alphabets.
+- Each alphabet includes multiple characters, and each character has 20 image samples.
+- You parsed the dataset into `(image_path, alphabet, character)` tuples and built a custom `OmniglotDataset` class.
+- You created label mappings:
+  - `alpha_to_idx`: maps each alphabet to an integer label (30 unique alphabets used).
+  - `char_to_idx`: maps each character to an integer label (964 unique characters used).
+- You applied preprocessing:
+  - Converted images to grayscale.
+  - Resized to 64×64.
+  - Transformed to tensors.
+
+## 🧠 Model Architecture: Dual-Output CNN
+
+- You implemented a PyTorch model class `Net` with two output heads:
+  - `classifier_alpha`: predicts the alphabet (30 classes).
+  - `classifier_char`: predicts the character (964 classes).
+- The shared image processing pipeline includes:
+  - `Conv2d → MaxPool2d → ELU → Flatten → Linear(128)`
+- The model accepts a single image input and returns two outputs:
+  - `output_alpha`: logits for alphabet classification.
+  - `output_char`: logits for character classification.
+
+## 🔁 DataLoader and Splitting
+
+- You split the dataset using `train_test_split` (80/20).
+- You created `dataset_train` and `dataset_test` using the split samples.
+- You wrapped them in `DataLoader` objects with batching and shuffling.
+
+## 🧪 Evaluation Strategy
+
+- You defined an `evaluate_model()` function to compute accuracy for both outputs.
+- Used `MulticlassAccuracy` from `torchmetrics` for:
+  - Alphabet accuracy (`num_classes=30`)
+  - Character accuracy (`num_classes=964`)
+- Evaluation loop:
+  - Set model to `.eval()`
+  - Disabled gradients with `torch.no_grad()`
+  - Compared predictions with ground truth labels
+  - Printed final accuracy scores
+
+## ⚠️ Observations and Issues
+
+- Initial evaluation showed:
+  - Alphabet Accuracy ≈ 3.9% (random guess baseline)
+  - Character Accuracy = 0.0%
+- Diagnosis revealed:
+  - Model was not trained before evaluation.
+  - Dataset split was incorrectly applied (train/test overlap).
+  - No `.to(device)` usage caused potential device mismatch.
+  - Image loading was slow due to lack of `num_workers`.
+
+## ✅ Fixes Applied
+
+- Corrected dataset split usage.
+- Added training loop with `CrossEntropyLoss` and `Adam` optimizer.
+- Ensured device consistency (`cuda` or `cpu`).
+- Added `num_workers=4` to `DataLoader` for faster image loading.
+- Reduced batch size to avoid memory issues.
+
+## 🌐 Next Steps
+
+- Move training to a free cloud GPU platform (e.g., Google Colab, Kaggle).
+- Monitor training performance and accuracy improvements.
+- Archive results and share milestone on LinkedIn.
+
+
